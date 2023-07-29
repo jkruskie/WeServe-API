@@ -42,28 +42,28 @@ namespace WeServe.Models
         /// </summary>
         /// <author>Justin Kruskie</author>
         /// <date>07/28/2023</date>
-        public string Year { get; set; } = "Freshman";
+        public string? Year { get; set; } = "Freshman";
 
         /// <summary>
         /// The user's major.
         /// </summary>
         /// <author>Justin Kruskie</author>
         /// <date>07/28/2023</date>
-        public string Major { get; set; } = "Undeclared";
+        public string? Major { get; set; } = "Undeclared";
 
         /// <summary>
         /// The user's bio.
         /// </summary>
         /// <author>Justin Kruskie</author>
         /// <date>07/28/2023</date>
-        public string Bio { get; set; } = "This user has not set a bio yet.";
+        public string? Bio { get; set; } = "This user has not set a bio yet.";
 
         /// <summary>
         /// The user's profile picture.
         /// </summary>
         /// <author>Justin Kruskie</author>
         /// <date>07/28/2023</date>
-        public string ProfilePicture { get; set; } = "https://placehold.co/320x320";
+        public string? ProfilePicture { get; set; } = "https://placehold.co/320x320";
 
         /// <summary>
         /// The user's ban status.
