@@ -32,7 +32,7 @@ builder.Services
         // Define access token parameters
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(accessTokenSecret)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(accessTokenSecret ?? "secret-is-null")),
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateIssuerSigningKey = true,
@@ -55,11 +55,8 @@ builder.Services
         options.Password.RequireLowercase = isProduction;
         options.Password.RequireNonAlphanumeric = isProduction;
         options.Password.RequireUppercase = isProduction;
-        if (isProduction)
-        {
-            options.Password.RequiredLength = 8;
-            options.Password.RequiredUniqueChars = 3;
-        }
+        options.Password.RequiredLength = 8;
+        options.Password.RequiredUniqueChars = isProduction ? 3 : 0;
     })
     // Add the user store
     .AddEntityFrameworkStores<WeServeContext>();
