@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WeServe.Models;
 
 namespace WeServe.Data
 {
@@ -17,8 +18,12 @@ namespace WeServe.Data
         /// <date>07/28/2023</date>
         public WeServeContext(DbContextOptions<WeServeContext> options) : base(options) { }
 
-        // Models
-
+        /// <summary>
+        /// The users in the database.
+        /// </summary>
+        /// <author>Justin Kruskie</author>
+        /// <date>07/28/2023</date>
+        public DbSet<User> Users { get; set; }
 
 
         /// <summary>
@@ -30,6 +35,7 @@ namespace WeServe.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configure the models
+            modelBuilder.Entity<User>().ToTable("Users");
         }
     }
 }
