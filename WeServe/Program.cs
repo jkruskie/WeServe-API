@@ -25,13 +25,13 @@ builder.Services.AddResponseCompression(options =>
 // Configure compression options
 builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 {
-    options.Level = CompressionLevel.Fastest;
+    options.Level = CompressionLevel.Optimal;
 });
 
 // Configure compression options
 builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 {
-    options.Level = CompressionLevel.SmallestSize;
+    options.Level = CompressionLevel.Optimal;
 });
 
 // isProduction is true if the environment is Production
