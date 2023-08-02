@@ -1,9 +1,14 @@
-﻿namespace WeServe.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WeServe.DTO
 {
+    /// <summary>
+    /// Token response DTO
+    /// </summary>
+    /// <author>Justin Kruskie</author>
+    /// <date>08/02/2023</date>
     public class TokenResponseDTO
     {
-        private UserDTO userDTO;
-
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
         public UserDTO User { get; set; }
@@ -16,5 +21,16 @@
             ExpiresIn = expiresIn;
             User = user;
         }
+    }
+
+    /// <summary>
+    /// Refresh token DTO
+    /// </summary>
+    /// <author>Justin Kruskie</author>
+    /// <date>08/02/2023</date>
+    public class RefreshTokenDTO
+    {
+        [Required]
+        public string RefreshToken { get; set; }
     }
 }

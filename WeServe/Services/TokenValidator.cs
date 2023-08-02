@@ -46,7 +46,7 @@ public class TokenValidator
     /// <returns>True or false</returns>
     /// <author>Justin Kruskie</author>
     /// <date>07/28/2023</date>
-    public bool TryValidate(string refreshToken, out int tokenId)
+    public bool TryValidate(string refreshToken, out Guid tokenId)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenValidationParams = new TokenValidationParameters
@@ -64,7 +64,7 @@ public class TokenValidator
         {
             tokenHandler.ValidateToken(refreshToken, tokenValidationParams, out SecurityToken token);
             var jwt = (JwtSecurityToken)token;
-            var valid = int.TryParse(jwt.Id, out var id);
+            var valid = Guid.TryParse(jwt.Id, out var id);
             tokenId = id;
             return valid;
         }

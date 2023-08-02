@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WeServe.Data;
 using WeServe.DTO;
@@ -184,45 +185,68 @@ namespace WeServe.Controllers
             return Created($"/users/{newuser.Id}", newUserDTO);
         }
 
-        //[HttpPost("refresh-token")]
-        //public async Task<IActionResult> RefreshTokenAsync()
-        //{
-        //    var request = HttpContext.Request;
+        /// <summary>
+        /// Create a new access token using a refresh token
+        /// </summary>
+        /// <param name="refreshTokenDTO"></param>
+        /// <returns>TokenResponseDTO</returns>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenDTO refreshTokenDTO)
+        {
+            // Get the refresh token from the request body
+            var refreshToken = refreshTokenDTO.RefreshToken;
 
-        //    var refreshToken = request.Cookies["refresh_token"];
+            // Check if the refresh token is null or whitespace
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return BadRequest("Please include a refresh token in the request.");
 
-        //    if (string.IsNullOrWhiteSpace(refreshToken))
-        //        return BadRequest("Please include a refresh token in the request.");
+            // Validate the refresh token
+            var tokenIsValid = _tokenValidator.TryValidate(refreshToken, out var tokenId);
+            if (!tokenIsValid) return BadRequest("Invalid refresh token.");
 
-        //    var tokenIsValid = _tokenValidator.TryValidate(refreshToken, out var tokenId);
-        //    if (!tokenIsValid) return BadRequest("Invalid refresh token.");
+            // Get the token from the database
+            var token = await _repository.Tokens.Where(token => token.Id == tokenId).FirstOrDefaultAsync();
+            if (token is null) return BadRequest("Refresh token not found.");
 
-        //    var token = await _repository.Tokens.Where(token => token.Id == tokenId).FirstOrDefaultAsync();
-        //    if (token is null) return BadRequest("Refresh token not found.");
+            // Get the user from the database
+            var user = await _users.FindByIdAsync(token.UserId.ToString());
 
-        //    var user = await _users.Users.Where(u => u.Guid == token.UserId).FirstOrDefaultAsync();
-        //    if (user is null) return BadRequest("User not found.");
+            // Check if the user exists
+            if (user is null) return BadRequest("User not found.");
 
-        //    var accessToken = _tokens.GenerateAccessToken(user);
-        //    var (newRefreshTokenId, newRefreshToken) = _tokens.GenerateRefreshToken();
+            // Generate a new access token and refresh token
+            var accessToken = _tokens.GenerateAccessToken(user);
+            var (newRefreshTokenId, newRefreshToken) = _tokens.GenerateRefreshToken();
 
-        //    _repository.Tokens.Remove(token);
-        //    await _repository.Tokens.AddAsync(new Token { Id = newRefreshTokenId, UserId = user.Guid });
-        //    await _repository.SaveChangesAsync();
+            // Remove the old refresh token
+            _repository.Tokens.Remove(token);
 
-        //    var response = HttpContext.Response;
+            // Add the new refresh token to the database
+            await _repository.Tokens.AddAsync(new Token { Id = newRefreshTokenId, UserId = user.Id });
+            // Save the changes
+            await _repository.SaveChangesAsync();
 
-        //    response.Cookies.Append("refresh_token", newRefreshToken, new CookieOptions
-        //    {
-        //        Expires = DateTime.Now.AddDays(1),
-        //        HttpOnly = true,
-        //        IsEssential = true,
-        //        MaxAge = new TimeSpan(1, 0, 0, 0),
-        //        Secure = true,
-        //        SameSite = SameSiteMode.Strict
-        //    });
+            // Get the response
+            var response = HttpContext.Response;
 
-        //    return Ok(accessToken);
-        //}
+            // Add the refresh token to the response
+            response.Cookies.Append("refresh_token", newRefreshToken, new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(1),
+                HttpOnly = true,
+                IsEssential = true,
+                MaxAge = new TimeSpan(1, 0, 0, 0),
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
+            // Create a TokenResponseDTO
+            var tokenResponse = new TokenResponseDTO(accessToken, newRefreshToken, new UserDTO(user), 30 * 60);
+
+            // Return the TokenResponseDTO
+            return Ok(tokenResponse);
+        }
     }
 }
