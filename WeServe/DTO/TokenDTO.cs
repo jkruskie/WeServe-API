@@ -3,7 +3,6 @@
     public class TokenResponseDTO
     {
         private UserDTO userDTO;
-        private int v;
 
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
@@ -16,13 +15,6 @@
             RefreshToken = refreshToken;
             ExpiresIn = expiresIn;
             User = user;
-        }
-
-        public TokenResponseDTO(string accessToken, UserDTO userDTO, int v)
-        {
-            AccessToken = accessToken;
-            this.userDTO = userDTO;
-            this.v = v;
         }
     }
 }

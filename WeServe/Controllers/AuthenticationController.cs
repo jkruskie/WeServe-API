@@ -1,6 +1,8 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WeServe.Data;
 using WeServe.DTO;
 using WeServe.Models;
@@ -47,34 +49,34 @@ namespace WeServe.Controllers
             _tokenValidator = tokenValidator;
         }
 
+        /// <summary>
+        /// Get the currently logged in user
+        /// </summary>
+        /// <returns>Current user DTO</returns>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUserAsync()
+        {
+            // Get the user's ID from the claims, which is the NameIdentifier
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        //[HttpGet("me")]
-        //[Authorize]
-        //public async Task<IActionResult> GetCurrentUserAsync()
-        //{
-        //    // Get the user's ID from the claims, which is the NameIdentifier
-        //    var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            // Get the user's ID from the claims
+            if (userId is null) return BadRequest("User not found.");
 
-        //    // Get the user's ID from the claims
-        //    if (userId is null)
-        //    {
-        //        return BadRequest("Invalid token.");
-        //    }
+            // Get the user from the database with their company
+            var user = await _users.FindByIdAsync(userId);
 
-        //    // Get the user from the database with their company
-        //    var user = await _users.Users
-        //        //.Include(u => u.Company)
-        //        .FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
+            // Check if the user exists
+            if (user is null) return BadRequest("User not found.");
 
-        //    // Check if the user exists
-        //    if (user is null)
-        //    {
-        //        return NotFound("User not found.");
-        //    }
+            // Create a new user DTO
+            var userDTO = new UserDTO(user);
 
-        //    // Return the user
-        //    return Ok(user);
-        //}
+            // Return the user
+            return Ok(userDTO);
+        }
 
         /// <summary>
         /// Sign in a user
@@ -137,12 +139,19 @@ namespace WeServe.Controllers
             var userDTO = new UserDTO(user);
 
             // Create new tokenresponsedto with 30 min expiration
-            var tokenResponse = new TokenResponseDTO(accessToken, userDTO, 30 * 60);
+            var tokenResponse = new TokenResponseDTO(accessToken, refreshToken, userDTO, 30 * 60);
 
             // Return the token response
             return Ok(tokenResponse);
         }
 
+        /// <summary>
+        /// Sign up a user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>New user DTO</returns>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] CreateUserDTO user)
         {
