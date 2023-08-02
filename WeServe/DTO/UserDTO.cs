@@ -48,19 +48,6 @@ namespace WeServe.DTO
     }
 
     /// <summary>
-    /// The data transfer object for signing in a user.
-    /// </summary>
-    /// <author>Justin Kruskie</author>
-    /// <date>07/28/2023</date>
-    public class LoginUserDTO
-    {
-        [Required]
-        public string Email { get; set; }
-        [Required]
-        public string Password { get; set; }
-    }
-
-    /// <summary>
     /// The data transfer object for signing up a user.
     /// </summary>
     /// <author>Justin Kruskie</author>
@@ -81,5 +68,18 @@ namespace WeServe.DTO
         public string? Year { get; set; }
         public string? Major { get; set; }
         public string? Bio { get; set; }
+    }
+
+    /// <summary>
+    /// The data transfer object for logging in a user
+    /// </summary>
+    /// <author>Justin Kruskie</author>
+    /// <date>08/02/2023</date>
+    public class SigninUserDTO
+    {
+        [Required]
+        public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
     }
 }

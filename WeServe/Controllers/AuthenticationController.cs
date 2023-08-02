@@ -1,7 +1,6 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WeServe.Data;
 using WeServe.DTO;
 using WeServe.Models;
@@ -66,68 +65,69 @@ namespace WeServe.Controllers
         //}
 
 
-        //[HttpPost("signin")]
-        //public async Task<IActionResult> SignInAsync([FromBody] LoginUserDTO credentials)
+        [HttpPost("signin")]
+        public async Task<IActionResult> SignInAsync([FromBody] SigninUserDTO credentials)
+        {
+            // Create a new validator
+            SigninUserDTOValidator validator = new SigninUserDTOValidator();
 
-        //{
-        //    if (credentials is null)
-        //    {
-        //        return BadRequest();
-        //    }
+            // Get the validation result
+            ValidationResult validationResult = validator.Validate(credentials);
 
-        //    if (!MiniValidator.TryValidate(credentials, out var errors))
-        //    {
-        //        return BadRequest(errors);
-        //    }
+            // Check if the validation failed
+            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
-        //    var isUsingEmailAddress = EmailAddressValidator.TryValidate(credentials.Email, out var _);
-        //    var user = isUsingEmailAddress
-        //        ? await _users.FindByEmailAsync(credentials.Email)
-        //        : await _users.FindByNameAsync(credentials.Email);
-        //    if (user is null)
-        //    {
-        //        return NotFound("User with this email address not found.");
-        //    }
+            // Get the user from the database
+            var user = await _users.FindByEmailAsync(credentials.Email);
 
-        //    var result = await _users.CheckPasswordAsync(user, credentials.Password);
-        //    if (!result)
-        //    {
-        //        return BadRequest("Incorrect password.");
-        //    }
+            // Check if the user exists
+            if (user is null) return BadRequest("User not found.");
 
-        //    var accessToken = _tokens.GenerateAccessToken(user);
-        //    var (refreshTokenId, refreshToken) = _tokens.GenerateRefreshToken();
+            // Compare the password to the user's password
+            var result = await _users.CheckPasswordAsync(user, credentials.Password);
 
-        //    await _repository.Tokens.AddAsync(new Token { Id = refreshTokenId, UserId = user.Guid });
-        //    await _repository.SaveChangesAsync();
+            // Check if the password is correct
+            if (!result) return BadRequest("Invalid password.");
 
-        //    var response = HttpContext.Response;
+            // Generate the access token
+            var accessToken = _tokens.GenerateAccessToken(user);
 
-        //    response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
-        //    {
-        //        Expires = DateTime.Now.AddDays(1),
-        //        HttpOnly = true,
-        //        IsEssential = true,
-        //        MaxAge = new TimeSpan(1, 0, 0, 0),
-        //        Secure = true,
-        //        SameSite = SameSiteMode.Strict
-        //    });
+            // Generate the refresh token
+            var (refreshTokenId, refreshToken) = _tokens.GenerateRefreshToken();
 
-        //    // Create new user DTO
-        //    var userDTO = new UserDTO(user);
+            // Add the refresh token to the database
+            await _repository.Tokens.AddAsync(new Token { Id = refreshTokenId, UserId = user.Id });
 
-        //    // Create new tokenresponsedto with 30 min expiration
-        //    var tokenResponse = new TokenResponseDTO(accessToken, userDTO, 30 * 60);
+            // Save the changes
+            await _repository.SaveChangesAsync();
 
-        //    return Ok(tokenResponse);
-        //}
+            // Get the response
+            var response = HttpContext.Response;
+
+            // Add the refresh token to the response
+            response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(1),
+                HttpOnly = true,
+                IsEssential = true,
+                MaxAge = new TimeSpan(1, 0, 0, 0),
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
+            // Create new user DTO
+            var userDTO = new UserDTO(user);
+
+            // Create new tokenresponsedto with 30 min expiration
+            var tokenResponse = new TokenResponseDTO(accessToken, userDTO, 30 * 60);
+
+            // Return the token response
+            return Ok(tokenResponse);
+        }
 
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] CreateUserDTO user)
         {
-            // Check if the user is null
-            if (user is null) return BadRequest();
-
             // Create a new validator
             CreateUserDTOValidator validator = new CreateUserDTOValidator();
 
@@ -197,30 +197,5 @@ namespace WeServe.Controllers
 
         //    return Ok(accessToken);
         //}
-
-        [HttpPost("signout")]
-        public async Task<IActionResult> SignOutAsync()
-        {
-            var request = HttpContext.Request;
-
-            var refreshToken = request.Cookies["refresh_token"];
-
-            if (string.IsNullOrWhiteSpace(refreshToken))
-                return BadRequest("Please include a refresh token in the request.");
-
-            var tokenIsValid = _tokenValidator.TryValidate(refreshToken, out var tokenId);
-            if (!tokenIsValid) return BadRequest("Invalid refresh token.");
-
-            var token = await _repository.Tokens.Where(token => token.Id == tokenId).FirstOrDefaultAsync();
-            if (token is null) return BadRequest("Refresh token not found.");
-
-            _repository.Tokens.Remove(token);
-            await _repository.SaveChangesAsync();
-
-            var response = HttpContext.Response;
-
-            response.Cookies.Delete("refresh_token");
-            return NoContent();
-        }
     }
 }
