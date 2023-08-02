@@ -8,7 +8,7 @@ using WeServe.Repositories;
 using WeServe.Services;
 
 // Create the builder
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // isProduction is true if the environment is Production
 var isProduction = builder.Environment.IsProduction();
@@ -20,6 +20,12 @@ var accessTokenSecret = builder.Configuration["Jwt:AccessTokenSecret"];
 builder.Services.AddDbContext<WeServeContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+// Add Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "WeServe", Version = "v1" });
+});
 
 // Use Controllers
 builder.Services.AddControllers();
@@ -85,6 +91,13 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyOrigin()
 );
+
+// Enable Swagger
+if (!isProduction)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeServe v1"));
+}
 
 // Use controllers for routing
 app.MapControllers();
