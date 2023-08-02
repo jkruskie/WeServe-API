@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using WeServe.Data;
 using WeServe.Models;
@@ -8,7 +9,7 @@ using WeServe.Repositories;
 using WeServe.Services;
 
 // Create the builder
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // isProduction is true if the environment is Production
 var isProduction = builder.Environment.IsProduction();
@@ -21,6 +22,40 @@ builder.Services.AddDbContext<WeServeContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+// Add Swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            In = ParameterLocation.Header,
+            Scheme = JwtBearerDefaults.AuthenticationScheme,
+            BearerFormat = "JWT",
+            Description =
+                "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        }
+    );
+
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                },
+                new string[] { }
+            }
+        }
+    );
+});
 // Use Controllers
 builder.Services.AddControllers();
 
@@ -69,6 +104,31 @@ builder.Services.AddDbContext<TokenRepository>(
     options => options.UseInMemoryDatabase("RefreshTokens")
 );
 
+// Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    // Admin
+    options.AddPolicy(
+        "Admin",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Admin")
+    );
+    // Moderator
+    options.AddPolicy(
+        "Moderator",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Moderator")
+    );
+    // Organization
+    options.AddPolicy(
+        "Organization",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Organization")
+    );
+    // Student
+    options.AddPolicy(
+        "Student",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Student")
+    );
+});
+
 // Singleton Repositories
 builder.Services.AddSingleton<TokenGenerator>();
 builder.Services.AddSingleton<TokenValidator>();
@@ -85,6 +145,13 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyOrigin()
 );
+
+// Enable Swagger
+if (!isProduction)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeServe v1"));
+}
 
 // Use controllers for routing
 app.MapControllers();

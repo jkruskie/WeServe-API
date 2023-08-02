@@ -15,7 +15,7 @@ namespace WeServe.Models
         public string? LastName { get; set; }
         public string? FullName => $"{FirstName} {LastName}";
         public int Age { get; set; }
-        public string Role { get; set; } = "User"; // Student, Moderator, Admin
+        public string Role { get; set; } = "User"; // Student, Organization, Moderator, Admin
         public string? Year { get; set; } = "Freshman";
         public string? Major { get; set; } = "Undeclared";
         public string? Bio { get; set; } = "This user has not set a bio yet.";

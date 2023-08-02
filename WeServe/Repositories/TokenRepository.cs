@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using WeServe.Models;
 
 namespace WeServe.Repositories
 {
@@ -30,17 +30,5 @@ namespace WeServe.Repositories
         {
             modelBuilder.Entity<Token>().HasIndex(b => b.UserId);
         }
-    }
-
-    /// <summary>
-    /// Token
-    /// </summary>
-    /// <author>Justin Kruskie</author>
-    /// <date>07/28/2023</date>
-    public record Token
-    {
-        [Key]
-        public int Id { get; init; }
-        public int UserId { get; init; }
     }
 }

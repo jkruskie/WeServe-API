@@ -26,7 +26,7 @@ namespace WeServe.Validation
     }
 
     /// <summary>
-    /// The validation for the login user DTO.
+    /// The validation for the create user DTO.
     /// </summary>
     /// <author>Justin Kruskie</author>
     /// <date>07/28/2023</date>
@@ -44,6 +44,25 @@ namespace WeServe.Validation
             RuleFor(user => user.FirstName).NotEmpty();
             RuleFor(user => user.LastName).NotEmpty();
             RuleFor(user => user.Role).NotEmpty();
+        }
+    }
+
+    /// <summary>
+    /// The validation for the login user DTO.
+    /// </summary>
+    /// <author>Justin Kruskie</author>
+    /// <date>07/28/2023</date>
+    public class SigninUserDTOValidator : AbstractValidator<SigninUserDTO>
+    {
+        /// <summary>
+        /// Create a new instance of the login user DTO validator.
+        /// </summary>
+        /// <author>Justin Kruskie</author>
+        /// <date>07/28/2023</date>
+        public SigninUserDTOValidator()
+        {
+            RuleFor(user => user.Email).NotEmpty().EmailAddress();
+            RuleFor(user => user.Password).NotEmpty();
         }
     }
 }
