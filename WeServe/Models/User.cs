@@ -27,6 +27,7 @@ namespace WeServe.Models
         public DateTime? DeletedAt { get; set; }
         public int? OrganizationId { get; set; }
         public Organization? Organization { get; set; }
+        public ICollection<Event>? Events { get; set; }
 
 
         /// <summary>

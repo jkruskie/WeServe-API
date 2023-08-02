@@ -20,5 +20,6 @@
         public string? State { get; set; }
         public string? ZipCode { get; set; }
         public ICollection<User>? Users { get; set; }
+        public ICollection<Event>? Events { get; set; }
     }
 }
