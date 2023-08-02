@@ -25,6 +25,9 @@ namespace WeServe.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public DateTime? DeletedAt { get; set; }
+        public int? OrganizationId { get; set; }
+        public Organization? Organization { get; set; }
+
 
         /// <summary>
         /// Create a new instance of the user model.
