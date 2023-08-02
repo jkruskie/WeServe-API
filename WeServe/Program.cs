@@ -174,23 +174,11 @@ using (var scope = app.Services.CreateScope())
     await context.Database.EnsureCreatedAsync();
 
     // Migrate the database if needed
-    //if (context.Database.GetPendingMigrations().Any())
-    //{
-    //    // Migrate the database
-    //    await context.Database.MigrateAsync();
-    //}
-
-    // Create the database if it doesn't exist
-    // This will automatically create the database
-    // and also run any pending migrations
-    await tokenContext.Database.EnsureCreatedAsync();
-
-    // Migrate the database if needed
-    //if (tokenContext.Database.GetPendingMigrations().Any())
-    //{
-    //    // Migrate the database
-    //    await tokenContext.Database.MigrateAsync();
-    //}
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        // Migrate the database
+        await context.Database.MigrateAsync();
+    }
 }
 
 // Run the application
