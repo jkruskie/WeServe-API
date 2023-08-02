@@ -43,6 +43,19 @@ namespace WeServe.Data
         {
             // Configure the models
             modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Organization>().ToTable("Organizations");
+
+            // User belongs to an organization
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Organization)
+                .WithMany(o => o.Users)
+                .HasForeignKey(u => u.OrganizationId);
+
+            // Organization has many users
+            modelBuilder.Entity<Organization>()
+                .HasMany(o => o.Users)
+                .WithOne(u => u.Organization)
+                .HasForeignKey(u => u.OrganizationId);
 
             // Default password
             var password = "password123$";
@@ -80,6 +93,7 @@ namespace WeServe.Data
                     Email = "organization@weserve.com",
                     NormalizedEmail = "ORGANIZATION@WESERVE.COM",
                     Role = "Organization",
+                    OrganizationId = 1,
                     PasswordHash = passwordHash
                 },
                 new User
