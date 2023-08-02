@@ -26,6 +26,12 @@ namespace WeServe.Data
         /// <date>07/28/2023</date>
         public DbSet<User> Users { get; set; }
 
+        /// <summary>
+        /// The organizations in the database.
+        /// </summary>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
+        public DbSet<Organization> Organizations { get; set; }
 
         /// <summary>
         /// Configure the models for the database context.
@@ -37,6 +43,19 @@ namespace WeServe.Data
         {
             // Configure the models
             modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Organization>().ToTable("Organizations");
+
+            // User belongs to an organization
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Organization)
+                .WithMany(o => o.Users)
+                .HasForeignKey(u => u.OrganizationId);
+
+            // Organization has many users
+            modelBuilder.Entity<Organization>()
+                .HasMany(o => o.Users)
+                .WithOne(u => u.Organization)
+                .HasForeignKey(u => u.OrganizationId);
 
             // Default password
             var password = "password123$";
@@ -74,6 +93,7 @@ namespace WeServe.Data
                     Email = "organization@weserve.com",
                     NormalizedEmail = "ORGANIZATION@WESERVE.COM",
                     Role = "Organization",
+                    OrganizationId = 1,
                     PasswordHash = passwordHash
                 },
                 new User
@@ -95,6 +115,35 @@ namespace WeServe.Data
                     NormalizedEmail = "ADMIN@WESERVE.COM",
                     Role = "Admin",
                     PasswordHash = passwordHash
+                }
+            );
+
+            modelBuilder.Entity<Organization>().HasData(
+                new Organization
+                {
+                    Id = 1,
+                    Name = "Organization 1",
+                    Description = "This is the first organization.",
+                    Website = "https://www.google.com",
+                    Email = "email@me.com",
+                    PhoneNumber = "1234567890",
+                    AddressLine1 = "123 Main St.",
+                    City = "City",
+                    State = "State",
+                    ZipCode = "12345"
+                },
+                new Organization
+                {
+                    Id = 2,
+                    Name = "Organization 2",
+                    Description = "This is the second organization.",
+                    Website = "https://www.google.com",
+                    Email = "email@me.com",
+                    PhoneNumber = "1234567890",
+                    AddressLine1 = "123 Main St.",
+                    City = "City",
+                    State = "State",
+                    ZipCode = "12345"
                 }
             );
         }
