@@ -97,7 +97,7 @@ namespace WeServe.Data
                     LastName = "Kruskie",
                     Email = "justin@jkruskie.com",
                     NormalizedEmail = "JUSTIN@JKRUSKIE.COM",
-                    Role = "Admin",
+                    Role = "admin",
                     PasswordHash = passwordHash
                 },
                 new User
@@ -107,7 +107,7 @@ namespace WeServe.Data
                     LastName = "Account",
                     Email = "student@weserve.com",
                     NormalizedEmail = "STUDENT@WESERVE.COM",
-                    Role = "Student",
+                    Role = "student",
                     PasswordHash = passwordHash
                 },
                 new User
@@ -117,7 +117,7 @@ namespace WeServe.Data
                     LastName = "Account",
                     Email = "organization@weserve.com",
                     NormalizedEmail = "ORGANIZATION@WESERVE.COM",
-                    Role = "Organization",
+                    Role = "organization",
                     OrganizationId = 1,
                     PasswordHash = passwordHash
                 },
@@ -128,7 +128,7 @@ namespace WeServe.Data
                     LastName = "Account",
                     Email = "moderator@weserve.com",
                     NormalizedEmail = "MODERATOR@WESERVE.COM",
-                    Role = "Moderator",
+                    Role = "moderator",
                     PasswordHash = passwordHash
                 },
                 new User
@@ -138,7 +138,7 @@ namespace WeServe.Data
                     LastName = "Account",
                     Email = "admin@weserve.com",
                     NormalizedEmail = "ADMIN@WESERVE.COM",
-                    Role = "Admin",
+                    Role = "admin",
                     PasswordHash = passwordHash
                 }
             );
@@ -155,7 +155,8 @@ namespace WeServe.Data
                     AddressLine1 = "123 Main St.",
                     City = "City",
                     State = "State",
-                    ZipCode = "12345"
+                    ZipCode = "12345",
+                    IsApproved = true
                 },
                 new Organization
                 {
@@ -168,7 +169,8 @@ namespace WeServe.Data
                     AddressLine1 = "123 Main St.",
                     City = "City",
                     State = "State",
-                    ZipCode = "12345"
+                    ZipCode = "12345",
+                    IsApproved = false
                 }
             );
 

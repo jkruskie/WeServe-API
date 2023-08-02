@@ -1,15 +1,38 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IO.Compression;
 using System.Text;
 using WeServe.Data;
+using WeServe.Interfaces;
 using WeServe.Models;
 using WeServe.Repositories;
 using WeServe.Services;
 
 // Create the builder
 var builder = WebApplication.CreateBuilder(args);
+
+// Enable gzip compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+// Configure compression options
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+// Configure compression options
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.SmallestSize;
+});
 
 // isProduction is true if the environment is Production
 var isProduction = builder.Environment.IsProduction();
@@ -109,23 +132,23 @@ builder.Services.AddAuthorization(options =>
 {
     // Admin
     options.AddPolicy(
-        "Admin",
-        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Admin")
+        "admin",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "admin")
     );
     // Moderator
     options.AddPolicy(
-        "Moderator",
-        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Moderator")
+        "moderator",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "moderator")
     );
     // Organization
     options.AddPolicy(
-        "Organization",
-        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Organization")
+        "organization",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "organization")
     );
     // Student
     options.AddPolicy(
-        "Student",
-        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Student")
+        "student",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "student")
     );
 });
 
@@ -135,9 +158,13 @@ builder.Services.AddSingleton<TokenValidator>();
 
 // Scoped Repositories
 builder.Services.AddScoped<TokenRepository>();
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 
 // Build the application
 var app = builder.Build();
+
+// Use Compression
+app.UseResponseCompression();
 
 // Enable all CORS 
 app.UseCors(builder => builder
@@ -174,11 +201,11 @@ using (var scope = app.Services.CreateScope())
     await context.Database.EnsureCreatedAsync();
 
     // Migrate the database if needed
-    if (context.Database.GetPendingMigrations().Any())
-    {
-        // Migrate the database
-        await context.Database.MigrateAsync();
-    }
+    //if (context.Database.GetPendingMigrations().Any())
+    //{
+    //    // Migrate the database
+    //    await context.Database.MigrateAsync();
+    //}
 }
 
 // Run the application

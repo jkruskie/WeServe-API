@@ -19,6 +19,7 @@
         public string? City { get; set; }
         public string? State { get; set; }
         public string? ZipCode { get; set; }
+        public bool IsApproved { get; set; } = false;
         public ICollection<User>? Users { get; set; }
         public ICollection<Event>? Events { get; set; }
     }
