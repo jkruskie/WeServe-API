@@ -75,6 +75,31 @@ builder.Services.AddDbContext<TokenRepository>(
     options => options.UseInMemoryDatabase("RefreshTokens")
 );
 
+// Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    // Admin
+    options.AddPolicy(
+        "Admin",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Admin")
+    );
+    // Moderator
+    options.AddPolicy(
+        "Moderator",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Moderator")
+    );
+    // Organization
+    options.AddPolicy(
+        "Organization",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Organization")
+    );
+    // Student
+    options.AddPolicy(
+        "Student",
+        policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Student")
+    );
+});
+
 // Singleton Repositories
 builder.Services.AddSingleton<TokenGenerator>();
 builder.Services.AddSingleton<TokenValidator>();
