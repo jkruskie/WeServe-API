@@ -16,6 +16,7 @@ namespace WeServe.Controllers
     {
         // Repository
         private readonly IOrganizationRepository _organizationRepository;
+        private readonly IEventRepository _eventRepository;
 
         /// <summary>
         /// Constructor
@@ -23,9 +24,12 @@ namespace WeServe.Controllers
         /// <param name="organizationRepository">Repository for Organization</param>
         /// <author>Justin Kruskie</author>
         /// <date>08/02/2023</date>
-        public OrganizationController(IOrganizationRepository organizationRepository)
+        public OrganizationController(
+            IOrganizationRepository organizationRepository, IEventRepository eventRepository
+        )
         {
             _organizationRepository = organizationRepository;
+            _eventRepository = eventRepository;
         }
 
         /// <summary>
@@ -95,6 +99,20 @@ namespace WeServe.Controllers
         public async Task<Organization> DeleteOrganizationAsync(Organization organization)
         {
             return await _organizationRepository.DeleteOrganizationAsync(organization);
+        }
+
+        /// <summary>
+        /// Get all Events for an Organization
+        /// </summary>
+        /// <param name="id">Id of Organization</param>
+        /// <returns>All Events for an Organization</returns>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
+        [HttpGet("{id}/events")]
+        [Authorize(Roles = "student,organization,moderator,admin")]
+        public async Task<ICollection<Event>> GetEventsByOrganizationIdAsync(int id)
+        {
+            return await _eventRepository.GetEventsByOrganizationIdAsync(id);
         }
     }
 }
