@@ -34,6 +34,13 @@ namespace WeServe.Data
         public DbSet<Organization> Organizations { get; set; }
 
         /// <summary>
+        /// The events in the database.
+        /// </summary>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
+        public DbSet<Event> Events { get; set; }
+
+        /// <summary>
         /// Configure the models for the database context.
         /// </summary>
         /// <param name="modelBuilder"></param>

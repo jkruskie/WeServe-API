@@ -159,6 +159,7 @@ builder.Services.AddSingleton<TokenValidator>();
 // Scoped Repositories
 builder.Services.AddScoped<TokenRepository>();
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
 
 // Build the application
 var app = builder.Build();
