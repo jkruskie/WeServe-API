@@ -14,12 +14,24 @@ namespace WeServe.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
+
+        // Repository
         private readonly WeServeContext _context;
         private readonly UserManager<User> _users;
         private readonly TokenGenerator _tokens;
         private readonly TokenRepository _repository;
         private readonly TokenValidator _tokenValidator;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context">Database context</param>
+        /// <param name="users">User manager</param>
+        /// <param name="tokens">Token generator</param>
+        /// <param name="repository">Token repository</param>
+        /// <param name="tokenValidator">Token validator</param>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
         public AuthenticationController(
             WeServeContext context,
             UserManager<User> users,
@@ -64,7 +76,13 @@ namespace WeServe.Controllers
         //    return Ok(user);
         //}
 
-
+        /// <summary>
+        /// Sign in a user
+        /// </summary>
+        /// <param name="credentials"></param>
+        /// <returns>TokenResponseDTO</returns>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
         [HttpPost("signin")]
         public async Task<IActionResult> SignInAsync([FromBody] SigninUserDTO credentials)
         {
