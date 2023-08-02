@@ -44,6 +44,7 @@ namespace WeServe.Data
             // Configure the models
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<Organization>().ToTable("Organizations");
+            modelBuilder.Entity<Event>().ToTable("Event");
 
             // User belongs to an organization
             modelBuilder.Entity<User>()
@@ -56,6 +57,30 @@ namespace WeServe.Data
                 .HasMany(o => o.Users)
                 .WithOne(u => u.Organization)
                 .HasForeignKey(u => u.OrganizationId);
+
+            // User has many events
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Events)
+                .WithOne(e => e.CreatedByUser)
+                .HasForeignKey(e => e.CreatedByUserId);
+
+            // Event belongs to an organization
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.Organization)
+                .WithMany(o => o.Events)
+                .HasForeignKey(e => e.OrganizationId);
+
+            // Event belongs to a user
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.CreatedByUser)
+                .WithMany(u => u.Events)
+                .HasForeignKey(e => e.CreatedByUserId);
+
+            // Organization has many events
+            modelBuilder.Entity<Organization>()
+                .HasMany(o => o.Events)
+                .WithOne(e => e.Organization)
+                .HasForeignKey(e => e.OrganizationId);
 
             // Default password
             var password = "password123$";
@@ -144,6 +169,64 @@ namespace WeServe.Data
                     City = "City",
                     State = "State",
                     ZipCode = "12345"
+                }
+            );
+
+            modelBuilder.Entity<Event>().HasData(
+                new Event
+                {
+                    Id = 1,
+                    Name = "Summer Festival",
+                    Description = "Join us for a fun-filled summer festival!",
+                    Location = "Central Park, New York",
+                    StartDate = new DateTime(2023, 08, 15, 10, 00, 00),
+                    EndDate = new DateTime(2023, 08, 15, 22, 00, 00),
+                    OrganizationId = 1,
+                    CreatedByUserId = 3
+                },
+                new Event
+                {
+                    Id = 2,
+                    Name = "Tech Conference",
+                    Description = "Learn about the latest tech trends and innovations.",
+                    Location = "Tech Convention Center, San Francisco",
+                    StartDate = new DateTime(2023, 09, 20, 08, 30, 00),
+                    EndDate = new DateTime(2023, 09, 22, 17, 00, 00),
+                    OrganizationId = 1,
+                    CreatedByUserId = 3
+                },
+                new Event
+                {
+                    Id = 3,
+                    Name = "Art Exhibition",
+                    Description = "Admire stunning artworks from talented artists.",
+                    Location = "City Art Gallery, London",
+                    StartDate = new DateTime(2023, 10, 10, 11, 00, 00),
+                    EndDate = new DateTime(2023, 10, 20, 18, 00, 00),
+                    OrganizationId = 1,
+                    CreatedByUserId = 3
+                },
+                new Event
+                {
+                    Id = 4,
+                    Name = "Charity Run",
+                    Description = "Run for a cause and support local charities.",
+                    Location = "Riverside Park, Chicago",
+                    StartDate = new DateTime(2023, 11, 05, 09, 30, 00),
+                    EndDate = new DateTime(2023, 11, 05, 12, 00, 00),
+                    OrganizationId = 1,
+                    CreatedByUserId = 3
+                },
+                new Event
+                {
+                    Id = 5,
+                    Name = "Holiday Market",
+                    Description = "Get into the holiday spirit with festive vendors.",
+                    Location = "Town Square, Paris",
+                    StartDate = new DateTime(2023, 12, 15, 14, 00, 00),
+                    EndDate = new DateTime(2023, 12, 24, 20, 00, 00),
+                    OrganizationId = 1,
+                    CreatedByUserId = 3
                 }
             );
         }
