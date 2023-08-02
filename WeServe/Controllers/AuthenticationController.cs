@@ -13,6 +13,11 @@ using WeServe.Validation;
 
 namespace WeServe.Controllers
 {
+    /// <summary>
+    /// Authentication controller
+    /// </summary>
+    /// <author>Justin Kruskie</author>
+    /// <date>08/02/2023</date>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
