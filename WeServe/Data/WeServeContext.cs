@@ -26,6 +26,12 @@ namespace WeServe.Data
         /// <date>07/28/2023</date>
         public DbSet<User> Users { get; set; }
 
+        /// <summary>
+        /// The organizations in the database.
+        /// </summary>
+        /// <author>Justin Kruskie</author>
+        /// <date>08/02/2023</date>
+        public DbSet<Organization> Organizations { get; set; }
 
         /// <summary>
         /// Configure the models for the database context.
@@ -95,6 +101,35 @@ namespace WeServe.Data
                     NormalizedEmail = "ADMIN@WESERVE.COM",
                     Role = "Admin",
                     PasswordHash = passwordHash
+                }
+            );
+
+            modelBuilder.Entity<Organization>().HasData(
+                new Organization
+                {
+                    Id = 1,
+                    Name = "Organization 1",
+                    Description = "This is the first organization.",
+                    Website = "https://www.google.com",
+                    Email = "email@me.com",
+                    PhoneNumber = "1234567890",
+                    AddressLine1 = "123 Main St.",
+                    City = "City",
+                    State = "State",
+                    ZipCode = "12345"
+                },
+                new Organization
+                {
+                    Id = 2,
+                    Name = "Organization 2",
+                    Description = "This is the second organization.",
+                    Website = "https://www.google.com",
+                    Email = "email@me.com",
+                    PhoneNumber = "1234567890",
+                    AddressLine1 = "123 Main St.",
+                    City = "City",
+                    State = "State",
+                    ZipCode = "12345"
                 }
             );
         }
